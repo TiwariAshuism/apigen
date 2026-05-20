@@ -1,0 +1,54 @@
+openapi: "3.0.0"
+info:
+  title: {{.Resource}} API
+  version: "1.0.0"
+paths:
+{{- range (groupByPath .Methods)}}
+  {{.Path}}:
+  {{- range .Methods}}
+    {{.HTTPMethod | lower}}:
+      operationId: {{.Name}}
+      summary: {{.Name}}
+      {{- if .PathParams}}
+      parameters:
+      {{- range .PathParams}}
+        - name: {{.}}
+          in: path
+          required: true
+          schema:
+            type: string
+      {{- end}}
+      {{- end}}
+      {{- if .Request}}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/{{.Request.Type}}'
+      {{- end}}
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                {{- if .Response}}
+                {{- if .Response.IsSlice}}
+                type: array
+                items:
+                  $ref: '#/components/schemas/{{.Response.Type}}'
+                {{- else}}
+                $ref: '#/components/schemas/{{.Response.Type}}'
+                {{- end}}
+                {{- else}}
+                type: object
+                {{- end}}
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  {{- end}}
+{{- end}}
+components:
+  schemas: {}

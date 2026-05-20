@@ -1,0 +1,117 @@
+openapi: "3.0.0"
+info:
+  title: Post API
+  version: "1.0.0"
+paths:
+  /posts:
+    get:
+      operationId: ListPosts
+      summary: ListPosts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListPostsRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+    post:
+      operationId: CreatePost
+      summary: CreatePost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /posts/:id:
+    get:
+      operationId: GetPost
+      summary: GetPost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+    put:
+      operationId: UpdatePost
+      summary: UpdatePost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePostRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+    delete:
+      operationId: DeletePost
+      summary: DeletePost
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+components:
+  schemas: {}

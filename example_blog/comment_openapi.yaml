@@ -1,0 +1,88 @@
+openapi: "3.0.0"
+info:
+  title: Comment API
+  version: "1.0.0"
+paths:
+  /posts/:postId/comments:
+    get:
+      operationId: ListComments
+      summary: ListComments
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListCommentsRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+    post:
+      operationId: CreateComment
+      summary: CreateComment
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentRequest'
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+  /posts/:postId/comments/:id:
+    delete:
+      operationId: DeleteComment
+      summary: DeleteComment
+      parameters:
+        - name: postId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        "400":
+          description: Bad Request
+        "500":
+          description: Internal Server Error
+components:
+  schemas: {}
