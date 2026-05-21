@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	"apigen/internal/model"
+	"github.com/user/apigen/pkg/model"
 )
 
 //go:embed templates/*.tmpl

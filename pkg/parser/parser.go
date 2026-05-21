@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"apigen/internal/model"
+	"github.com/user/apigen/pkg/model"
 )
 
 // ParseFile reads a single Go source file and returns all interface definitions found,

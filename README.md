@@ -47,10 +47,8 @@ Generates:
 To use `apigen` as a CLI tool in your projects:
 
 ```sh
-go install github.com/your-username/apigen/cmd/apigen@latest
+go install github.com/user/apigen/cmd/apigen@latest
 ```
-
-*(Note: Replace `github.com/your-username/apigen` with the actual repository path once hosted.)*
 
 Or run directly from source within this repo:
 
@@ -206,7 +204,7 @@ Output: `internal/<resource>_openapi.yaml`
 ```
 apigen/
 ├── cmd/apigen/main.go                    # CLI entrypoint
-├── internal/
+├── pkg/
 │   ├── model/types.go                    # IR: APIDefinition, Method, Param
 │   ├── parser/
 │   │   ├── parser.go                     # go/ast parser + ParseDir

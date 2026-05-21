@@ -5,9 +5,9 @@ import (
 	"log"
 	"strings"
 
-	"apigen/internal/generator"
-	"apigen/internal/model"
-	"apigen/internal/parser"
+	"github.com/user/apigen/pkg/generator"
+	"github.com/user/apigen/pkg/model"
+	"github.com/user/apigen/pkg/parser"
 )
 
 func main() {
