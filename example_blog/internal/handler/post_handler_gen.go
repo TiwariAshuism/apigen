@@ -31,7 +31,7 @@ func (h *PostHandler) RegisterRoutes(r *gin.RouterGroup) {
 // ListPosts handles GET /posts.
 func (h *PostHandler) ListPosts(c *gin.Context) {
 	var req model.ListPostsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -77,7 +77,7 @@ func (h *PostHandler) UpdatePost(c *gin.Context) {
 		return
 	}
 	id := c.Param("id")
-	result, err := h.svc.UpdatePost(c.Request.Context(), req, id)
+	result, err := h.svc.UpdatePost(c.Request.Context(), id, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

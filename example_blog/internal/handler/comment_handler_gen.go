@@ -29,12 +29,12 @@ func (h *CommentHandler) RegisterRoutes(r *gin.RouterGroup) {
 // ListComments handles GET /posts/:postId/comments.
 func (h *CommentHandler) ListComments(c *gin.Context) {
 	var req model.ListCommentsRequest
-	if err := c.ShouldBindJSON(&req); err != nil {
+	if err := c.ShouldBindQuery(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	postId := c.Param("postId")
-	result, err := h.svc.ListComments(c.Request.Context(), req, postId)
+	result, err := h.svc.ListComments(c.Request.Context(), postId, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -50,7 +50,7 @@ func (h *CommentHandler) CreateComment(c *gin.Context) {
 		return
 	}
 	postId := c.Param("postId")
-	result, err := h.svc.CreateComment(c.Request.Context(), req, postId)
+	result, err := h.svc.CreateComment(c.Request.Context(), postId, req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

@@ -44,11 +44,13 @@ Generates:
 
 ## Installation
 
+To use `apigen` as a CLI tool in your projects:
+
 ```sh
-go install apigen/cmd/apigen@latest
+go install github.com/user/apigen/cmd/apigen@latest
 ```
 
-Or run directly from source:
+Or run directly from source within this repo:
 
 ```sh
 go run ./cmd/apigen [flags]
@@ -182,12 +184,27 @@ Output: `internal/<resource>_openapi.yaml`
 
 ---
 
-## Project Structure
+## How to use in your own project
+
+1.  **Install the tool** as shown in the Installation section.
+2.  **Define your API interface** in a Go file (e.g., `api/routes.go`). Use HTTP annotations in comments.
+3.  **Ensure you have a `go.mod` file** in your project root or a parent directory. `apigen` uses this to detect your module path for imports.
+4.  **Run the generator**:
+    ```sh
+    apigen -input api/routes.go -output .
+    ```
+5.  **Project Layout Requirement**: `apigen` expects to generate code into an `internal/` directory at your `-output` path. It will create:
+    -   `internal/handler/`
+    -   `internal/service/`
+    -   `internal/repository/`
+    -   `internal/model/` (Note: You should define your shared structs here or ensure they are accessible).
+
+## Project Structure (This Repo)
 
 ```
 apigen/
 ├── cmd/apigen/main.go                    # CLI entrypoint
-├── internal/
+├── pkg/
 │   ├── model/types.go                    # IR: APIDefinition, Method, Param
 │   ├── parser/
 │   │   ├── parser.go                     # go/ast parser + ParseDir
