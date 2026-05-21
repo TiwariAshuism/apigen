@@ -16,8 +16,22 @@ type Method struct {
 	Path       string   // e.g. /users or /users/:id
 	Request    *Param   // input struct param (nil if none)
 	Response   *Param   // output type (nil if none)
-	PathParams []string // e.g. ["id"]
+	PathParams []string // list of path param names (e.g. ["id"])
+	Args       []Argument
 }
+
+type Argument struct {
+	Kind ArgumentKind
+	Name string
+	Type string // only for request kind
+}
+
+type ArgumentKind string
+
+const (
+	ArgRequest   ArgumentKind = "request"
+	ArgPathParam ArgumentKind = "pathParam"
+)
 
 // Param describes a single Go parameter or return value.
 type Param struct {

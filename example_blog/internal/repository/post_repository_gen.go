@@ -13,6 +13,6 @@ type PostRepository interface {
 	ListPosts(ctx context.Context, req model.ListPostsRequest) ([]model.Post, error)
 	GetPost(ctx context.Context, id string) (model.Post, error)
 	CreatePost(ctx context.Context, req model.CreatePostRequest) (model.Post, error)
-	UpdatePost(ctx context.Context, req model.UpdatePostRequest, id string) (model.Post, error)
+	UpdatePost(ctx context.Context, id string, req model.UpdatePostRequest) (model.Post, error)
 	DeletePost(ctx context.Context, id string) (model.Post, error)
 }

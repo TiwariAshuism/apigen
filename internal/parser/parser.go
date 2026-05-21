@@ -111,7 +111,7 @@ func parseASTFile(f *ast.File) ([]model.APIDefinition, []string, error) {
 
 				// Extract path params first so parseParams can cross-reference them.
 				m.PathParams = extractPathParams(m.Path)
-				m.Request, m.Response = parseParams(funcType, m.PathParams)
+				m.Request, m.Response, m.Args = parseParams(funcType, m.PathParams)
 
 				def.Methods = append(def.Methods, m)
 			}
@@ -143,7 +143,7 @@ func parseHTTPComment(text string, m *model.Method) {
 
 // parseParams extracts the request body param and response type from a method signature.
 // It skips context.Context (first param) and any params whose names match path params.
-func parseParams(fn *ast.FuncType, pathParams []string) (req *model.Param, resp *model.Param) {
+func parseParams(fn *ast.FuncType, pathParams []string) (req *model.Param, resp *model.Param, args []model.Argument) {
 	pathParamSet := make(map[string]bool, len(pathParams))
 	for _, p := range pathParams {
 		pathParamSet[p] = true
@@ -154,24 +154,25 @@ func parseParams(fn *ast.FuncType, pathParams []string) (req *model.Param, resp 
 			if i == 0 {
 				continue // skip context.Context
 			}
-			// Skip params whose name matches a known path param (they are plain strings).
-			if len(p.Names) > 0 && pathParamSet[p.Names[0].Name] {
-				continue
-			}
-			// Skip unqualified string params (fallback guard).
-			typeStr := exprToString(p.Type)
-			if typeStr == "string" {
-				continue
-			}
+
 			name := ""
 			if len(p.Names) > 0 {
 				name = p.Names[0].Name
 			}
+
+			// Check if this is a path param
+			if pathParamSet[name] {
+				args = append(args, model.Argument{Kind: model.ArgPathParam, Name: name})
+				continue
+			}
+
+			// If not a path param, assume it's the request object
+			typeStr := exprToString(p.Type)
 			req = &model.Param{
 				Name: name,
 				Type: typeStr,
 			}
-			break // only one request body per method
+			args = append(args, model.Argument{Kind: model.ArgRequest, Name: name, Type: typeStr})
 		}
 	}
 

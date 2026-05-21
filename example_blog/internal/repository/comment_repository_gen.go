@@ -10,7 +10,7 @@ import (
 // CommentRepository defines data-access operations for Comment.
 // Implement this interface in a separate (non-generated) file.
 type CommentRepository interface {
-	ListComments(ctx context.Context, req model.ListCommentsRequest, postId string) ([]model.Comment, error)
-	CreateComment(ctx context.Context, req model.CreateCommentRequest, postId string) (model.Comment, error)
+	ListComments(ctx context.Context, postId string, req model.ListCommentsRequest) ([]model.Comment, error)
+	CreateComment(ctx context.Context, postId string, req model.CreateCommentRequest) (model.Comment, error)
 	DeleteComment(ctx context.Context, postId string, id string) (model.Comment, error)
 }
