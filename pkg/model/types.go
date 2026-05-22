@@ -2,11 +2,13 @@ package model
 
 // APIDefinition is the parsed result of one interface.
 type APIDefinition struct {
-	PackageName string
-	Name        string // e.g. "UserAPI"
-	Resource    string // e.g. "User"
-	Module      string // injected by generator (Go module path)
-	Methods     []Method
+	PackageName     string
+	Name            string // e.g. "UserAPI"
+	Resource        string // e.g. "User"
+	Module          string // injected by generator (Go module path)
+	ModelImportPath string // e.g. "github.com/foo/internal/types"
+	ModelAlias      string // e.g. "types" — import alias for domain types
+	Methods         []Method
 }
 
 // Method represents a single interface method mapped to an HTTP endpoint.

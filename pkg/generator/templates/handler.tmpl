@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"{{.Module}}/internal/model"
+	"{{.ModelImportPath}}"
 	"{{.Module}}/internal/service"
 )
 
@@ -29,7 +29,7 @@ func (h *{{.Resource}}Handler) RegisterRoutes(r *gin.RouterGroup) {
 // {{.Name}} handles {{.HTTPMethod}} {{.Path}}.
 func (h *{{$.Resource}}Handler) {{.Name}}(c *gin.Context) {
 {{- if .Request}}
-	var req model.{{.Request.Type}}
+	var req {{.Request.Type}}
 	{{if or (eq .HTTPMethod "GET") (eq .HTTPMethod "DELETE") -}}
 	if err := c.ShouldBindQuery(&req); err != nil {
 	{{- else -}}
@@ -42,6 +42,7 @@ func (h *{{$.Resource}}Handler) {{.Name}}(c *gin.Context) {
 {{- range .PathParams}}
 	{{.}} := c.Param("{{.}}")
 {{- end}}
+	{{- if .Response}}
 	result, err := h.svc.{{.Name}}(c.Request.Context()
 		{{- range .Args -}}
 			{{- if eq .Kind "request" -}}, req
@@ -53,5 +54,18 @@ func (h *{{$.Resource}}Handler) {{.Name}}(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, result)
+	{{- else}}
+	err := h.svc.{{.Name}}(c.Request.Context()
+		{{- range .Args -}}
+			{{- if eq .Kind "request" -}}, req
+			{{- else if eq .Kind "pathParam" -}}, {{.Name}}
+			{{- end -}}
+		{{- end -}})
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.Status(http.StatusNoContent)
+	{{- end}}
 }
 {{end}}

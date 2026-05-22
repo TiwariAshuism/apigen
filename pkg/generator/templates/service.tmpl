@@ -4,7 +4,7 @@ package service
 import (
 	"context"
 
-	"{{.Module}}/internal/model"
+	"{{.ModelImportPath}}"
 )
 
 // {{.Resource}}Service defines business logic operations for {{.Resource}}.
@@ -12,9 +12,9 @@ import (
 type {{.Resource}}Service interface {
 {{- range .Methods}}
 	{{.Name}}(ctx context.Context{{range .Args}}
-		{{- if eq .Kind "request" -}}, req model.{{.Type}}
+		{{- if eq .Kind "request" -}}, req {{.Type}}
 		{{- else if eq .Kind "pathParam" -}}, {{.Name}} string
 		{{- end}}
-	{{- end}}) ({{if .Response}}{{if .Response.IsSlice}}[]{{end}}model.{{.Response.Type}}{{else}}interface{}{{end}}, error)
+	{{- end}}) {{if .Response}}({{if .Response.IsSlice}}[]{{end}}{{.Response.Type}}, error){{else}}error{{end}}
 {{- end}}
 }

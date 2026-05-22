@@ -32,6 +32,18 @@ type UserAPI interface {
 go generate ./api/...
 ```
 
+From another project (module path must match this repo):
+
+```sh
+go run github.com/TiwariAshuism/apigen/cmd/apigen@latest -input api/routes.go -output . -module your/module/path
+```
+
+Or in `api/routes.go`:
+
+```go
+//go:generate go run github.com/TiwariAshuism/apigen/cmd/apigen@latest -input routes.go -output ..
+```
+
 Generates:
 
 | File | Contents |
@@ -47,7 +59,7 @@ Generates:
 To use `apigen` as a CLI tool in your projects:
 
 ```sh
-go install github.com/user/apigen/cmd/apigen@latest
+go install github.com/TiwariAshuism/apigen/cmd/apigen@latest
 ```
 
 Or run directly from source within this repo:

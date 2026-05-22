@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/user/apigen/pkg/model"
+	"github.com/TiwariAshuism/apigen/pkg/model"
 )
 
 // ParseFile reads a single Go source file and returns all interface definitions found,
@@ -73,10 +73,14 @@ func parseASTFile(f *ast.File) ([]model.APIDefinition, []string, error) {
 				continue
 			}
 
+			modelImport, modelAlias := detectModelImport(f)
+
 			def := model.APIDefinition{
-				PackageName: f.Name.Name,
-				Name:        typeSpec.Name.Name,
-				Resource:    extractResource(typeSpec.Name.Name),
+				PackageName:     f.Name.Name,
+				Name:            typeSpec.Name.Name,
+				Resource:        extractResource(typeSpec.Name.Name),
+				ModelImportPath: modelImport,
+				ModelAlias:      modelAlias,
 			}
 
 			for _, field := range iface.Methods.List {
@@ -111,7 +115,9 @@ func parseASTFile(f *ast.File) ([]model.APIDefinition, []string, error) {
 
 				// Extract path params first so parseParams can cross-reference them.
 				m.PathParams = extractPathParams(m.Path)
-				m.Request, m.Response, m.Args = parseParams(funcType, m.PathParams)
+				m.Request, m.Response, m.Args = parseParams(
+					funcType, m.PathParams, modelAlias,
+				)
 
 				def.Methods = append(def.Methods, m)
 			}
@@ -141,9 +147,47 @@ func parseHTTPComment(text string, m *model.Method) {
 	}
 }
 
+// detectModelImport finds the import used for domain types (internal/types or internal/model).
+func detectModelImport(f *ast.File) (importPath, alias string) {
+	alias = "model"
+	for _, decl := range f.Imports {
+		if decl == nil {
+			continue
+		}
+		path := strings.Trim(decl.Path.Value, `"`)
+		if !strings.HasSuffix(path, "/internal/types") &&
+			!strings.HasSuffix(path, "/internal/model") {
+			continue
+		}
+		importPath = path
+		if decl.Name != nil {
+			alias = decl.Name.Name
+		} else {
+			alias = path[strings.LastIndex(path, "/")+1:]
+		}
+		return importPath, alias
+	}
+	return "", alias
+}
+
+// typeExpr returns a valid Go type reference for generated code.
+func typeExpr(typeStr, modelAlias string) string {
+	if strings.Contains(typeStr, ".") {
+		return typeStr
+	}
+	if modelAlias == "" {
+		return typeStr
+	}
+	return modelAlias + "." + typeStr
+}
+
 // parseParams extracts the request body param and response type from a method signature.
 // It skips context.Context (first param) and any params whose names match path params.
-func parseParams(fn *ast.FuncType, pathParams []string) (req *model.Param, resp *model.Param, args []model.Argument) {
+func parseParams(
+	fn *ast.FuncType,
+	pathParams []string,
+	modelAlias string,
+) (req *model.Param, resp *model.Param, args []model.Argument) {
 	pathParamSet := make(map[string]bool, len(pathParams))
 	for _, p := range pathParams {
 		pathParamSet[p] = true
@@ -170,9 +214,11 @@ func parseParams(fn *ast.FuncType, pathParams []string) (req *model.Param, resp 
 			typeStr := exprToString(p.Type)
 			req = &model.Param{
 				Name: name,
-				Type: typeStr,
+				Type: typeExpr(typeStr, modelAlias),
 			}
-			args = append(args, model.Argument{Kind: model.ArgRequest, Name: name, Type: typeStr})
+			args = append(args, model.Argument{
+				Kind: model.ArgRequest, Name: name, Type: req.Type,
+			})
 		}
 	}
 
@@ -183,8 +229,9 @@ func parseParams(fn *ast.FuncType, pathParams []string) (req *model.Param, resp 
 				continue
 			}
 			isSlice := strings.HasPrefix(t, "[]")
+			base := strings.TrimPrefix(t, "[]")
 			resp = &model.Param{
-				Type:    strings.TrimPrefix(t, "[]"),
+				Type:    typeExpr(base, modelAlias),
 				IsSlice: isSlice,
 			}
 			break

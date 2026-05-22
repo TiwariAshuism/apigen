@@ -10,7 +10,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/user/apigen/pkg/model"
+	"github.com/TiwariAshuism/apigen/pkg/model"
 )
 
 //go:embed templates/*.tmpl
@@ -73,6 +73,12 @@ func (g *Generator) Generate(defs []model.APIDefinition) error {
 
 	for _, def := range defs {
 		def.Module = g.Module
+		if def.ModelImportPath == "" {
+			def.ModelImportPath = g.Module + "/internal/model"
+		}
+		if def.ModelAlias == "" {
+			def.ModelAlias = "model"
+		}
 
 		for _, l := range active {
 			var outDir, outPath string
