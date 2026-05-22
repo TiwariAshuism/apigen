@@ -205,13 +205,16 @@ func parseParams(
 			}
 
 			// Check if this is a path param
-			if pathParamSet[name] {
+			if pathParamSet[name] && name != "" {
 				args = append(args, model.Argument{Kind: model.ArgPathParam, Name: name})
 				continue
 			}
 
 			// If not a path param, assume it's the request object
 			typeStr := exprToString(p.Type)
+			if name == "" {
+				name = "req"
+			}
 			req = &model.Param{
 				Name: name,
 				Type: typeExpr(typeStr, modelAlias),

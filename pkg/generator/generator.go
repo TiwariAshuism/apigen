@@ -39,7 +39,9 @@ type Generator struct {
 	// Defaults to all non-opt-in layers when empty.
 	Layers []string
 	// DryRun prints what would be written without touching the filesystem.
-	DryRun    bool
+	DryRun bool
+	// Force writes all files even when content is unchanged.
+	Force bool
 	templates *template.Template
 }
 
@@ -113,9 +115,11 @@ func (g *Generator) Generate(defs []model.APIDefinition) error {
 			}
 
 			// Overwrite guard: skip if content is identical to existing file.
-			if existing, err := os.ReadFile(outPath); err == nil && bytes.Equal(existing, content) {
-				unchanged++
-				continue
+			if !g.Force {
+				if existing, err := os.ReadFile(outPath); err == nil && bytes.Equal(existing, content) {
+					unchanged++
+					continue
+				}
 			}
 
 			if err := os.MkdirAll(outDir, 0755); err != nil {
@@ -131,7 +135,17 @@ func (g *Generator) Generate(defs []model.APIDefinition) error {
 	}
 
 	if !g.DryRun {
-		fmt.Printf("apigen: %d file(s) written, %d unchanged\n", written, unchanged)
+		total := written + unchanged
+		switch {
+		case written > 0 && unchanged > 0:
+			fmt.Printf("apigen: %d file(s) written, %d unchanged (%d total)\n", written, unchanged, total)
+		case written > 0:
+			fmt.Printf("apigen: %d file(s) written\n", written)
+		case unchanged > 0:
+			fmt.Printf("apigen: %d file(s) up to date (no changes)\n", unchanged)
+		default:
+			fmt.Printf("apigen: no files generated\n")
+		}
 	}
 
 	if len(errs) > 0 {

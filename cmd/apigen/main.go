@@ -15,7 +15,8 @@ func main() {
 	output := flag.String("output",  ".",             "Root output directory")
 	module := flag.String("module",  "",              "Go module path (auto-detected from go.mod if empty)")
 	layers := flag.String("layers",  "",              "Comma-separated layers: handler,service,repository,openapi (default: all)")
-	dryRun := flag.Bool("dry-run",   false,           "Print output without writing files")
+	dryRun := flag.Bool("dry-run", false, "Print output without writing files")
+	force  := flag.Bool("force",   false, "Write files even when content is unchanged")
 	flag.Parse()
 
 	mod := *module
@@ -53,6 +54,7 @@ func main() {
 		log.Fatalf("init generator: %v", err)
 	}
 	gen.DryRun = *dryRun
+	gen.Force = *force
 	if *layers != "" {
 		gen.Layers = strings.Split(*layers, ",")
 	}
